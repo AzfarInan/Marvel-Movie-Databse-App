@@ -72,9 +72,11 @@ struct MovieManager {
             
             var movieDataList = [MovieData]()
             
+            let pageNumber = decodedData.page
+            let totalPageNumber = decodedData.total_pages
             
             for resultObjects in decodedData.results {
-                movieDataList.append(MovieData(title: resultObjects.original_title, detail: resultObjects.overview, image: resultObjects.poster_path ?? ""))
+                movieDataList.append(MovieData(title: resultObjects.original_title, detail: resultObjects.overview, image: resultObjects.poster_path ?? "", page: pageNumber, total_pages: totalPageNumber))
             }
             
             return movieDataList

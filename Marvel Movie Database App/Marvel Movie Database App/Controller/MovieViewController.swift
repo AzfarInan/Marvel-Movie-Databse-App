@@ -13,9 +13,11 @@ class MovieViewController: UIViewController {
     
     var movieData = [MovieData]()
     var movieManager = MovieManager()
+    var totalPageNumber = 0
     
-//    var limit = 20
-//    var totalEntries = 100
+    
+    //    var limit = 20
+    //    var totalEntries = 100
     
     
     override func viewDidLoad() {
@@ -38,30 +40,38 @@ extension MovieViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         print("index: \(indexPath.row)")
-    
+        
         let cell = movieTableView.dequeueReusableCell(withIdentifier: "movieViewCell", for: indexPath) as! MovieCell
         
         cell.setMovie(movie: movieData[indexPath.row])
         
+        if indexPath.row == movieData.count - 1 {
+            print("at the end of index of page: \(movieData[indexPath.row].page)")
+            if totalPageNumber > movieData[indexPath.row].page {
+                print("Getting data for new index of page: \(movieData[indexPath.row].page + 1)")
+                self.movieManager.fetchMovieList(pageNumber: self.movieData[indexPath.row].page + 1)
+            }
+        }
+        
         return cell
     }
     
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        print(indexPath.row)
-//
-//        if indexPath.row == movieData.count - 1 {
-//            if movieData.count - 1 < totalEntries {
-//                var index = movieData.count
-//                limit = index + 20
-//                while index < limit {
-//                    print("index inside willDisplay: \(index)")
-//                    movieData[indexPath.row] = MovieData(title: "Test Movie", detail: "Test Details", image: "/w2PMyoyLU22YvrGK3smVM9fW1jj.jpg")
-//                    index = index + 1
-//                }
-//                self.perform(#selector(loadTable), with: nil, afterDelay: 1.0)
-//            }
-//        }
-//    }
+    //    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    //        print(indexPath.row)
+    //
+    //        if indexPath.row == movieData.count - 1 {
+    //            if movieData.count - 1 < totalEntries {
+    //                var index = movieData.count
+    //                limit = index + 20
+    //                while index < limit {
+    //                    print("index inside willDisplay: \(index)")
+    //                    movieData[indexPath.row] = MovieData(title: "Test Movie", detail: "Test Details", image: "/w2PMyoyLU22YvrGK3smVM9fW1jj.jpg")
+    //                    index = index + 1
+    //                }
+    //                self.perform(#selector(loadTable), with: nil, afterDelay: 1.0)
+    //            }
+    //        }
+    //    }
     
     @objc func loadTable() {
         self.movieTableView.reloadData()
@@ -72,7 +82,8 @@ extension MovieViewController: UITableViewDataSource, UITableViewDelegate {
 extension MovieViewController : MovieManagerDelegate {
     func didUpdateMovieList(_ movieManager: MovieManager, movieData: [MovieData]) {
         print("Calling")
-        self.movieData = movieData
+        self.movieData.append(contentsOf: movieData)
+        self.totalPageNumber = movieData[0].total_pages
         
         DispatchQueue.main.async {
             self.movieTableView.reloadData()
